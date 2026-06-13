@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from employee_services import *
 from validator import validate_employee
 from database import init_db
+import os
 
 app = Flask(__name__)
 
@@ -13,7 +14,8 @@ def home():
 
 @app.route("/docs")
 def docs():
-    base_url = "http://127.0.0.1:5000"
+    # Dynamic base URL (works locally + in cloud)
+    base_url = request.host_url.rstrip('/')
 
     return jsonify({
         "create_employee": f"POST {base_url}/employees",
@@ -92,4 +94,8 @@ def search():
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True)
+
+    # Dynamic port for deployment
+    port = int(os.environ.get("PORT", 5000))
+
+    app.run(host="0.0.0.0", port=port)
