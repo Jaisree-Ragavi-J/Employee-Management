@@ -133,21 +133,9 @@ The application is deployed on **Render** and supports production-ready executio
 
 ---
 
-## 📌 Future Improvements
-
-* Add Docker support
-* Use PostgreSQL for production
-* Add authentication
-* Integrate Swagger UI
-
----
-
 ## 👩‍💻 Author
 
-**Jaisree Ragavi**
+**Jaisree Ragavi J**
 
 ---
 
-## ⭐ Acknowledgement
-
-Developed as part of a DevOps trainee assignment focusing on backend development, testing, and deployment practices.
