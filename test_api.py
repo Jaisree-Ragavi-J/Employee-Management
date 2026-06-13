@@ -16,3 +16,10 @@ def test_create_employee_api():
     })
 
     assert response.status_code == 201
+
+
+def test_get_all_api():
+    client = app.test_client()
+    response = client.get("/employees")
+
+    assert response.status_code == 200
