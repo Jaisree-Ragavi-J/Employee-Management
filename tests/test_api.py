@@ -1,4 +1,9 @@
 from app import app
+from database import init_db
+
+# 🔥 ADD THIS
+init_db()
+
 
 def test_home():
     client = app.test_client()
