@@ -6,6 +6,9 @@ import os
 
 app = Flask(__name__)
 
+# ✅ Initialize DB once at startup (important for deployment)
+init_db()
+
 
 @app.route("/")
 def home():
@@ -14,7 +17,6 @@ def home():
 
 @app.route("/docs")
 def docs():
-    # Dynamic base URL (works locally + in cloud)
     base_url = request.host_url.rstrip('/')
 
     return jsonify({
@@ -29,7 +31,7 @@ def docs():
 
 @app.route("/employees", methods=["POST"])
 def create():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     error = validate_employee(data)
     if error:
@@ -61,7 +63,7 @@ def get_by_id(emp_id):
 
 @app.route("/employees/<int:emp_id>", methods=["PUT"])
 def update(emp_id):
-    data = request.get_json()
+    data = request.get_json() or {}
 
     emp = update_employee(emp_id, data)
 
@@ -92,10 +94,7 @@ def search():
     return jsonify(result), 200
 
 
+# ✅ IMPORTANT: only for local development
 if __name__ == "__main__":
-    init_db()
-
-    # Dynamic port for deployment
     port = int(os.environ.get("PORT", 5000))
-
     app.run(host="0.0.0.0", port=port)

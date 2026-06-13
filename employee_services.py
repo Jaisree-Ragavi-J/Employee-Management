@@ -1,27 +1,35 @@
 from database import get_connection
 
 
+# ---------------- CREATE ----------------
 def create_employee(name, email, dept):
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "INSERT INTO employees (name, email, dept) VALUES (?, ?, ?)",
-        (name, email, dept)
-    )
+    try:
+        cursor.execute(
+            "INSERT INTO employees (name, email, dept) VALUES (?, ?, ?)",
+            (name, email, dept)
+        )
+        conn.commit()
 
-    conn.commit()
-    emp_id = cursor.lastrowid
-    conn.close()
+        emp_id = cursor.lastrowid
 
-    return {
-        "id": emp_id,
-        "name": name,
-        "email": email,
-        "dept": dept
-    }
+        return {
+            "id": emp_id,
+            "name": name,
+            "email": email,
+            "dept": dept
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
+
+    finally:
+        conn.close()
 
 
+# ---------------- READ ALL ----------------
 def get_all_employees():
     conn = get_connection()
     cursor = conn.cursor()
@@ -36,6 +44,7 @@ def get_all_employees():
     ]
 
 
+# ---------------- READ BY ID ----------------
 def get_employee_by_id(emp_id):
     conn = get_connection()
     cursor = conn.cursor()
@@ -50,23 +59,25 @@ def get_employee_by_id(emp_id):
     return {"id": row[0], "name": row[1], "email": row[2], "dept": row[3]}
 
 
+# ---------------- UPDATE (FIXED SAFE VERSION) ----------------
 def update_employee(emp_id, data):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM employees WHERE id=?", (emp_id,))
-    if not cursor.fetchone():
+    row = cursor.fetchone()
+
+    if not row:
         conn.close()
         return None
 
+    name = data.get("name", row[1])
+    email = data.get("email", row[2])
+    dept = data.get("dept", row[3])
+
     cursor.execute(
         "UPDATE employees SET name=?, email=?, dept=? WHERE id=?",
-        (
-            data.get("name"),
-            data.get("email"),
-            data.get("dept"),
-            emp_id
-        )
+        (name, email, dept, emp_id)
     )
 
     conn.commit()
@@ -75,6 +86,7 @@ def update_employee(emp_id, data):
     return get_employee_by_id(emp_id)
 
 
+# ---------------- DELETE ----------------
 def delete_employee(emp_id):
     conn = get_connection()
     cursor = conn.cursor()
@@ -88,12 +100,13 @@ def delete_employee(emp_id):
     return deleted > 0
 
 
+# ---------------- SEARCH ----------------
 def search_employee_by_name(name):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT * FROM employees WHERE name LIKE ?",
+        "SELECT * FROM employees WHERE LOWER(name) LIKE LOWER(?)",
         ('%' + name + '%',)
     )
 
